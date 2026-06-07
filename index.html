@@ -295,53 +295,107 @@
     font-size: 0.76rem; color: var(--text-1);
     box-shadow: var(--shadow-md);
     animation: chip-float 4s ease-in-out infinite;
+    z-index: 3;
   }
-  .chip-icon { font-size: 0.95rem; }
-  .chip-1 { top: 20px; right: -10px; animation-delay: 0s; }
-  .chip-2 { bottom: 60px; left: -20px; animation-delay: -2s; }
-  .chip-3 { top: 50%; right: -28px; animation-delay: -1s; }
+  .chip-icon { font-size: 0.95rem; display: flex; align-items: center; }
+  .chip-icon svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .chip-1 { top: 16px; right: 16px; animation-delay: 0s; }
+  .chip-2 { bottom: 50px; left: 16px; animation-delay: -2s; }
+  .chip-3 { top: 50%; right: 8px; transform: translateY(-50%); animation-delay: -1s; }
   @keyframes chip-float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+  .chip-3 { animation: chip-float-mid 4s ease-in-out infinite; animation-delay: -1s; }
+  @keyframes chip-float-mid { 0%,100%{transform:translateY(-50%);} 50%{transform:translateY(calc(-50% - 8px));} }
 
   /* ─── SKILLS ─── */
-  #skills { padding: 8rem 0; background: var(--bg-1); }
+  #skills {
+    padding: 8rem 0;
+    background: var(--bg-1);
+    position: relative;
+    overflow: hidden;
+  }
+  /* Ambient section shimmer */
+  #skills::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 55% 60% at 50% 52%, rgba(138,106,62,0.055) 0%, transparent 70%),
+      radial-gradient(ellipse 35% 35% at 30% 20%, rgba(107,143,163,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 30% at 70% 80%, rgba(122,138,110,0.035) 0%, transparent 55%);
+    animation: skills-shimmer 8s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes skills-shimmer {
+    0%   { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 1;   transform: scale(1.04); }
+  }
+  #skills > * { position: relative; z-index: 1; }
   .skills-header { text-align: center; margin-bottom: 4rem; }
   .skill-constellation {
-    position: relative; width: 100%; height: 460px;
+    position: relative; width: 100%; height: 520px;
     display: flex; align-items: center; justify-content: center;
+    perspective: 900px; perspective-origin: 50% 50%;
+    overflow: visible;
+  }
+  .skill-net-inner {
+    position: absolute; inset: 0;
+    transform-style: preserve-3d;
+    will-change: transform;
   }
   #skill-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   .skill-nodes { position: absolute; inset: 0; }
   .skill-node {
-    position: absolute; transform: translate(-50%, -50%);
-    display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
-    cursor: default;
-    transition: transform 0.35s var(--ease-spring);
+    position: absolute;
+    display: flex; flex-direction: column; align-items: center; gap: 0.45rem;
+    cursor: pointer;
+    will-change: transform;
+    z-index: 1;
   }
-  .skill-node:hover { transform: translate(-50%, -50%) scale(1.38); }
   .skill-node-circle {
-    width: 54px; height: 54px; border-radius: 50%;
-    background: #ffffff; border: 1.5px solid rgba(0,0,0,0.18);
+    width: 58px; height: 58px; border-radius: 50%;
+    background: rgba(255,255,255,0.96);
+    border: 1.5px solid rgba(0,0,0,0.13);
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.35rem;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.12);
-    transition: border-color 0.3s, background 0.3s, box-shadow 0.35s;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.09);
+    transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+    backdrop-filter: blur(6px);
   }
-  .skill-node:hover .skill-node-circle {
-    border-color: rgba(138,106,62,0.55);
+  .skill-node.hovered .skill-node-circle {
+    border-color: rgba(138,106,62,0.65);
     background: rgba(255,250,244,1);
-    box-shadow: 0 6px 28px rgba(138,106,62,0.32), 0 2px 8px rgba(138,106,62,0.18);
+    box-shadow: 0 14px 44px rgba(138,106,62,0.38), 0 4px 14px rgba(138,106,62,0.22), 0 0 0 5px rgba(138,106,62,0.07);
   }
-  .skill-node-label { font-size: 0.70rem; color: var(--text-1); font-weight: 500; letter-spacing: 0.04em; white-space: nowrap; }
+  .skill-node.neighbor .skill-node-circle {
+    border-color: rgba(138,106,62,0.28);
+    box-shadow: 0 6px 22px rgba(138,106,62,0.16), 0 2px 6px rgba(0,0,0,0.10);
+  }
+  .skill-node-circle img {
+    width: 30px; height: 30px;
+    object-fit: contain; display: block;
+    pointer-events: none; user-select: none;
+  }
+  .skill-node-label {
+    font-size: 0.70rem; color: var(--text-1); font-weight: 500;
+    letter-spacing: 0.04em; white-space: nowrap;
+    transition: color 0.2s;
+  }
+  .skill-node.hovered .skill-node-label { color: var(--accent); font-weight: 600; }
   .skill-center {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-    width: 88px; height: 88px; border-radius: 50%;
-    background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(240,235,225,0.95));
-    border: 2px solid rgba(138,106,62,0.35);
+    width: 92px; height: 92px; border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(240,235,225,0.98));
+    border: 2px solid rgba(138,106,62,0.38);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; font-size: 0.6rem; color: var(--accent); letter-spacing: 0.05em; text-transform: uppercase;
     font-weight: 600;
-    box-shadow: 0 4px 24px rgba(138,106,62,0.25), 0 1px 8px rgba(0,0,0,0.12);
-    z-index: 5;
+    box-shadow: 0 8px 32px rgba(138,106,62,0.22), 0 2px 8px rgba(0,0,0,0.12), 0 0 0 8px rgba(138,106,62,0.05);
+    z-index: 5; pointer-events: none;
+    animation: center-pulse 3.5s ease-in-out infinite;
+  }
+  @keyframes center-pulse {
+    0%,100% { box-shadow: 0 8px 32px rgba(138,106,62,0.22), 0 2px 8px rgba(0,0,0,0.12), 0 0 0 8px rgba(138,106,62,0.05); }
+    50%      { box-shadow: 0 8px 40px rgba(138,106,62,0.32), 0 2px 8px rgba(0,0,0,0.12), 0 0 0 16px rgba(138,106,62,0.03); }
   }
   .skill-categories { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 3rem; }
   .skill-cat {
@@ -352,8 +406,9 @@
   }
   .skill-cat:hover { border-color: rgba(138,106,62,0.2); transform: translateY(-3px); box-shadow: var(--shadow-md); }
   .skill-cat-icon { font-size: 1.4rem; margin-bottom: 0.75rem; }
-  .skill-cat-title { font-family: var(--font-display); font-size: 0.83rem; font-weight: 600; color: var(--text-0); margin-bottom: 0.55rem; }
-  .skill-cat-list { font-size: 0.88rem; color: var(--text-2); line-height: 1.85; }
+  .skill-cat-icon img { width: 32px; height: 32px; object-fit: contain; display: block; }
+  .skill-cat-title { font-family: var(--font-display); font-size: 0.88rem; font-weight: 700; color: var(--text-0); margin-bottom: 0.6rem; }
+  .skill-cat-list { font-size: 0.88rem; color: var(--text-1); line-height: 1.85; font-weight: 500; }
 
   /* ─── EXPERIENCE ─── */
   #experience { padding: 8rem 0; background: var(--bg-0); }
@@ -466,7 +521,7 @@
   .project-icon {
     width: 46px; height: 46px; border-radius: 13px;
     background: rgba(138,106,62,0.08); border: 1px solid rgba(138,106,62,0.15);
-    display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .project-title {
     font-family: var(--font-display); font-size: 1.25rem; font-weight: 700;
@@ -502,7 +557,8 @@
     box-shadow: var(--shadow-sm);
   }
   .more-card:hover { border-color: rgba(138,106,62,0.2); box-shadow: var(--shadow-md); transform: translateY(-2px); }
-  .more-card-icon { font-size: 1.9rem; margin-bottom: 0.9rem; }
+  .more-card-icon { margin-bottom: 0.9rem; display: flex; align-items: center; }
+  .more-card-icon svg { width: 32px; height: 32px; flex-shrink: 0; }
   .more-card-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--text-0); margin-bottom: 0.5rem; }
   .more-card-body { font-size: 0.96rem; color: var(--text-1); line-height: 1.82; font-weight: 400; }
 
@@ -535,7 +591,8 @@
     transition: border-color 0.2s, color 0.2s, transform 0.2s var(--ease-spring), box-shadow 0.2s;
   }
   .contact-link:hover { border-color: rgba(138,106,62,0.25); color: var(--text-0); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-  .contact-link-icon { font-size: 1.05rem; }
+  .contact-link-icon { font-size: 1.05rem; display: flex; align-items: center; justify-content: center; }
+  .contact-link-icon svg { width: 18px; height: 18px; flex-shrink: 0; }
   .contact-email-big {
     font-family: var(--font-display); font-size: clamp(1.1rem, 2.3vw, 1.65rem);
     font-weight: 600; color: var(--accent); text-decoration: none;
@@ -811,10 +868,22 @@
     </div>
     <p class="hero-tagline">I build intelligent systems, scalable software,<br>and meaningful digital experiences.</p>
     <div class="hero-ctas">
-      <a href="#projects" class="btn-primary">View My Work →</a>
-      <a href="https://drive.google.com/uc?export=download&id=1S4TT6w3hhFWmhCoTRwWgqS2C_Wu7hBz0" target="_blank" class="btn-primary" style="background:var(--accent);">Download CV ↓</a>
-      <a href="mailto:aswinkumar377@gmail.com" class="btn-secondary">Contact Me</a>
-      <a href="https://linkedin.com/in/t-aswin-kumar-2153h8859" target="_blank" class="btn-secondary">LinkedIn ↗</a>
+      <a href="#projects" class="btn-primary">
+        View My Work
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="https://drive.google.com/uc?export=download&id=1S4TT6w3hhFWmhCoTRwWgqS2C_Wu7hBz0" target="_blank" class="btn-primary" style="background:var(--accent);">
+        Download CV
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 2v7M4 6.5l3 3 3-3M2 11.5h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="mailto:aswinkumar377@gmail.com" class="btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="1" y="2.5" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M1 4l6 4.5L13 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Contact Me
+      </a>
+      <a href="https://linkedin.com/in/t-aswin-kumar-2153h8859" target="_blank" class="btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="1" y="1" width="12" height="12" rx="2.5" fill="#0A66C2"/><path d="M4.2 5.6H5.8V10H4.2V5.6ZM5 4.9a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8ZM7.2 5.6h1.5v.62c.22-.4.76-.72 1.5-.72 1.2 0 1.8.78 1.8 2.1V10H10.5V7.8c0-.68-.28-1.1-.88-1.1-.58 0-.9.42-.9 1.1V10H7.2V5.6Z" fill="#fff"/></svg>
+        LinkedIn
+      </a>
     </div>
   </div>
   <div class="hero-scroll">
@@ -871,15 +940,37 @@
           </div>
         </div>
         <div class="floating-chip chip-1">
-          <span class="chip-icon">🏆</span>
+          <span class="chip-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9H3.5a2.5 2.5 0 0 1 0-5H6"/>
+              <path d="M18 9h2.5a2.5 2.5 0 0 0 0-5H18"/>
+              <path d="M4 22h16"/>
+              <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+              <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+              <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+            </svg>
+          </span>
           <span>ICISS 2025 Published</span>
         </div>
         <div class="floating-chip chip-2">
-          <span class="chip-icon">🧠</span>
+          <span class="chip-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+              <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+            </svg>
+          </span>
           <span>AI & ML Specialist</span>
         </div>
         <div class="floating-chip chip-3">
-          <span class="chip-icon">🛰️</span>
+          <span class="chip-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/>
+              <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/>
+              <circle cx="12" cy="12" r="2"/>
+              <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/>
+              <path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>
+            </svg>
+          </span>
           <span>Satellite Comms</span>
         </div>
       </div>
@@ -895,32 +986,34 @@
       <h2 class="section-title reveal">A technology ecosystem built<br>for <em>real-world</em> impact</h2>
     </div>
     <div class="skill-constellation reveal">
-      <canvas id="skill-canvas"></canvas>
-      <div class="skill-center">
-        <div style="font-size:0.58rem;margin-bottom:2px;">Core</div>
-        <div style="font-size:1.1rem;margin:2px 0;">◈</div>
-        <div>Stack</div>
+      <div class="skill-net-inner" id="skill-net-inner">
+        <canvas id="skill-canvas"></canvas>
+        <div class="skill-center">
+          <div style="font-size:0.58rem;margin-bottom:2px;">Core</div>
+          <div style="font-size:1.1rem;margin:2px 0;">◈</div>
+          <div>Stack</div>
+        </div>
+        <div class="skill-nodes" id="skill-nodes"></div>
       </div>
-      <div class="skill-nodes" id="skill-nodes"></div>
     </div>
     <div class="skill-categories reveal">
       <div class="skill-cat">
-        <div class="skill-cat-icon">🐍</div>
+        <div class="skill-cat-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" alt="Python"></div>
         <div class="skill-cat-title">Languages</div>
         <div class="skill-cat-list">Python · SQL · HTML/CSS · Bash · TypeScript</div>
       </div>
       <div class="skill-cat">
-        <div class="skill-cat-icon">🧠</div>
+        <div class="skill-cat-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-original.svg" alt="PyTorch"></div>
         <div class="skill-cat-title">AI / ML</div>
         <div class="skill-cat-list">PyTorch · TensorFlow · Scikit-Learn · NLP · Computer Vision · Deep Learning</div>
       </div>
       <div class="skill-cat">
-        <div class="skill-cat-icon">⚙️</div>
+        <div class="skill-cat-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg" alt="Docker"></div>
         <div class="skill-cat-title">Infrastructure</div>
-        <div class="skill-cat-list">Docker · Git · Linux · REST APIs · PostgreSQL · MySQL</div>
+        <div class="skill-cat-list">Docker · Git · Linux · REST APIs · PostgreSQL · MySQL · SQLite</div>
       </div>
       <div class="skill-cat">
-        <div class="skill-cat-icon">🔬</div>
+        <div class="skill-cat-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/flask/flask-original.svg" alt="Flask"></div>
         <div class="skill-cat-title">Frameworks</div>
         <div class="skill-cat-list">Flask · OpenCV · NumPy · Pandas · Matplotlib · snnTorch</div>
       </div>
@@ -998,7 +1091,12 @@
         <!-- B.Tech -->
         <div class="edu-card reveal">
           <div class="edu-card-header">
-            <div class="edu-icon">🎓</div>
+            <div class="edu-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              </svg>
+            </div>
             <div class="edu-period">2021 — 2025</div>
           </div>
           <div class="edu-degree">B.Tech — Computer Science (AI & ML)</div>
@@ -1017,7 +1115,12 @@
         <!-- Junior College -->
         <div class="edu-card reveal reveal-delay-1">
           <div class="edu-card-header">
-            <div class="edu-icon">📐</div>
+            <div class="edu-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+            </div>
             <div class="edu-period">2019 — 2021</div>
           </div>
           <div class="edu-degree">Senior Secondary Education (MPC)</div>
@@ -1030,7 +1133,14 @@
         <!-- High School -->
         <div class="edu-card reveal reveal-delay-2">
           <div class="edu-card-header">
-            <div class="edu-icon">🏫</div>
+            <div class="edu-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+                <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
+                <path d="M10 6h4M10 10h4M10 14h4M10 18h4"/>
+              </svg>
+            </div>
             <div class="edu-period">2019</div>
           </div>
           <div class="edu-degree">Secondary Education (SSC)</div>
@@ -1059,7 +1169,11 @@
         <div class="project-card-inner">
           <div class="project-header">
             <div class="project-num">01 / RESEARCH</div>
-            <div class="project-icon">⚡</div>
+            <div class="project-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+            </div>
           </div>
           <div class="project-title">Dynamic Spike Compression for Energy-Efficient Spiking Neural Networks</div>
           <div class="project-subtitle">Published Research · Jan 2025 – May 2025</div>
@@ -1087,7 +1201,11 @@
           <div class="project-card-inner">
             <div class="project-header">
               <div class="project-num">02 / MEDICAL AI</div>
-              <div class="project-icon">🔬</div>
+              <div class="project-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+              </div>
             </div>
             <div class="project-title">Liver Tumor Segmentation — U-Net + EfficientNet-B5</div>
             <div class="project-subtitle">Presented at ICISS 2025</div>
@@ -1113,7 +1231,12 @@
           <div class="project-card-inner">
             <div class="project-header">
               <div class="project-num">03 / DEEP LEARNING</div>
-              <div class="project-icon">🖼️</div>
+              <div class="project-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2"/>
+                  <path d="M8 21h8M12 17v4"/>
+                </svg>
+              </div>
             </div>
             <div class="project-title">CSS Code Generation from GUI Screenshots</div>
             <div class="project-subtitle">Feb 2024 – Jul 2024</div>
@@ -1141,7 +1264,13 @@
           <div class="project-card-inner">
             <div class="project-header">
               <div class="project-num">04 / IoT + ML</div>
-              <div class="project-icon">🌱</div>
+              <div class="project-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="4" width="16" height="16" rx="2"/>
+                  <rect x="9" y="9" width="6" height="6"/>
+                  <path d="M15 2v2M9 2v2M2 15h2M2 9h2M22 15h-2M22 9h-2M15 22v-2M9 22v-2"/>
+                </svg>
+              </div>
             </div>
             <div class="project-title">Automatic Irrigation System — Arduino + Deep Learning</div>
             <div class="project-subtitle">Aug 2023 – Dec 2023</div>
@@ -1159,7 +1288,13 @@
           <div class="project-card-inner">
             <div class="project-header">
               <div class="project-num">05 / ENTERPRISE</div>
-              <div class="project-icon">🎫</div>
+              <div class="project-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="8" rx="2"/>
+                  <rect x="2" y="14" width="20" height="8" rx="2"/>
+                  <path d="M6 6h.01M6 18h.01"/>
+                </svg>
+              </div>
             </div>
             <div class="project-title">Internal Ticketing & Operations System</div>
             <div class="project-subtitle">T.I.M.E. · Backend Engineering</div>
@@ -1184,22 +1319,45 @@
     <h2 class="section-title reveal" style="margin-bottom:3rem">Publications &<br><em>Credentials</em></h2>
     <div class="more-grid">
       <div class="more-card reveal">
-        <div class="more-card-icon">📄</div>
+        <div class="more-card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <path d="m9 15 2 2 4-4"/>
+          </svg>
+        </div>
         <div class="more-card-title">ICISS 2025 — International Conference</div>
         <div class="more-card-body">Presented research on U-Net + EfficientNet-B5-based liver tumor segmentation achieving 99.89% Dice score on the LiTS medical imaging dataset. A contribution to clinical AI-assisted diagnosis.</div>
       </div>
       <div class="more-card reveal reveal-delay-1">
-        <div class="more-card-icon">🎓</div>
+        <div class="more-card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="6"/>
+            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+        </div>
         <div class="more-card-title">AI & ML Certification — Smart Internz (2024)</div>
         <div class="more-card-body">Hands-on training covering ML model development, data preprocessing, deployment pipelines, and real-world project workflows across supervised and unsupervised learning paradigms.</div>
       </div>
       <div class="more-card reveal reveal-delay-2">
-        <div class="more-card-icon">🎮</div>
+        <div class="more-card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
         <div class="more-card-title">Club Secretary — DAG Club · VIT-AP</div>
         <div class="more-card-body">Organized a Web3 Hackathon with 50+ participants, increased club engagement by 30%, and managed cross-functional events, logistics, and communication for the Dhrushya Animation & Gaming club.</div>
       </div>
       <div class="more-card reveal reveal-delay-3">
-        <div class="more-card-icon">🌐</div>
+        <div class="more-card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8a6a3e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
         <div class="more-card-title">Languages & Location</div>
         <div class="more-card-body">English (Fluent) · Telugu (Native) — Based in Anantapur, Andhra Pradesh, India. Open to remote and relocation opportunities globally.</div>
       </div>
@@ -1216,23 +1374,54 @@
     <p class="contact-sub reveal reveal-delay-1">Whether it's an intelligent system, a scalable backend, or an ambitious research project — I'm ready to build.</p>
     <div class="contact-links reveal reveal-delay-2">
       <a href="mailto:aswinkumar377@gmail.com" class="contact-link">
-        <span class="contact-link-icon">✉️</span>
+        <span class="contact-link-icon">
+          <!-- Gmail -->
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 6.5C2 5.67 2.67 5 3.5 5h17C21.33 5 22 5.67 22 6.5v11c0 .83-.67 1.5-1.5 1.5h-17C2.67 19 2 18.33 2 17.5v-11Z" fill="#fff" stroke="#E0E0E0" stroke-width="1"/>
+            <path d="M2 7l10 7 10-7" stroke="#EA4335" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            <path d="M2 7l10 7" stroke="#EA4335" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M22 7l-10 7" stroke="#EA4335" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </span>
         aswinkumar377@gmail.com
       </a>
       <a href="https://linkedin.com/in/t-aswin-kumar-2153h8859" target="_blank" class="contact-link">
-        <span class="contact-link-icon">💼</span>
+        <span class="contact-link-icon">
+          <!-- LinkedIn official -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <rect width="24" height="24" rx="4" fill="#0A66C2"/>
+            <path d="M7.75 9.5h-2.5v8h2.5v-8Zm-1.25-4a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Zm9 4c-1.1 0-1.9.5-2.25 1V9.5h-2.5v8h2.5v-4.25c0-1.1.6-1.75 1.6-1.75.95 0 1.4.6 1.4 1.75V17.5h2.5v-4.75C18.75 10.5 17.5 9.5 15.5 9.5Z" fill="#fff"/>
+          </svg>
+        </span>
         LinkedIn Profile
       </a>
-      <a href="https://github.com" target="_blank" class="contact-link">
-        <span class="contact-link-icon">🐙</span>
+      <a href="https://github.com/aswinxd" target="_blank" class="contact-link">
+        <span class="contact-link-icon">
+          <!-- GitHub official mark -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.087.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10Z" fill="#1B1F23"/>
+          </svg>
+        </span>
         GitHub
       </a>
       <a href="tel:+918919824909" class="contact-link">
-        <span class="contact-link-icon">📱</span>
+        <span class="contact-link-icon">
+          <!-- Phone -->
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.62 10.79a15.053 15.053 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2Z" fill="#34A853" stroke="#34A853" stroke-width="0.3"/>
+          </svg>
+        </span>
         +91 8919824909
       </a>
       <a href="https://drive.google.com/uc?export=download&id=1S4TT6w3hhFWmhCoTRwWgqS2C_Wu7hBz0" target="_blank" class="contact-link" style="border-color:rgba(138,106,62,0.35);color:var(--accent);font-weight:500;">
-        <span class="contact-link-icon">📄</span>
+        <span class="contact-link-icon">
+          <!-- Document / CV -->
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" fill="#FFF8F0" stroke="#8a6a3e" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M14 2v6h6" stroke="#8a6a3e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 13h6M9 17h4" stroke="#8a6a3e" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </span>
         Download CV
       </a>
     </div>
@@ -1243,7 +1432,7 @@
 </section>
 
 <footer>
-  <div>Designed & built with precision · Aswin Kumar © 2025 · Press <kbd style="background:var(--bg-3);border:1px solid var(--border-2);padding:1px 5px;border-radius:4px;font-size:0.7rem">Ctrl+K</kbd> to navigate</div>
+  <div>Designed & built with precision · T Aswin Kumar © 2026 · Press <kbd style="background:var(--bg-3);border:1px solid var(--border-2);padding:1px 5px;border-radius:4px;font-size:0.7rem">Ctrl+K</kbd> to navigate</div>
 </footer>
 
 <script>
@@ -1286,69 +1475,209 @@ const revealObs = new IntersectionObserver(entries => {
 }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
 document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
 
-// Skill constellation
-const skills = [
-  { name: 'Python', emoji: '🐍', angle: 0,   r: 162 },
-  { name: 'PyTorch', emoji: '🔥', angle: 36,  r: 140 },
-  { name: 'PostgreSQL', emoji: '🐘', angle: 72,  r: 160 },
-  { name: 'Docker', emoji: '🐳', angle: 108, r: 140 },
-  { name: 'TensorFlow', emoji: '🧠', angle: 144, r: 162 },
-  { name: 'Linux', emoji: '🐧', angle: 180, r: 136 },
-  { name: 'Git', emoji: '🌿', angle: 216, r: 155 },
-  { name: 'OpenCV', emoji: '👁️', angle: 252, r: 140 },
-  { name: 'Flask', emoji: '🌶️', angle: 288, r: 160 },
-  { name: 'SQL', emoji: '📊', angle: 324, r: 142 },
-];
+// ── Skill constellation — 3D floating network ──
+(function () {
+  const _di = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons';
+  const skills = [
+    { name: 'Python',     logo: `${_di}/python/python-original.svg`,         angle: 0,   r: 162 },
+    { name: 'PyTorch',    logo: `${_di}/pytorch/pytorch-original.svg`,       angle: 36,  r: 140 },
+    { name: 'PostgreSQL', logo: `${_di}/postgresql/postgresql-original.svg`, angle: 72,  r: 160 },
+    { name: 'Docker',     logo: `${_di}/docker/docker-original.svg`,         angle: 108, r: 140 },
+    { name: 'TensorFlow', logo: `${_di}/tensorflow/tensorflow-original.svg`, angle: 144, r: 162 },
+    { name: 'Linux',      logo: `${_di}/linux/linux-original.svg`,           angle: 180, r: 136 },
+    { name: 'Git',        logo: `${_di}/git/git-original.svg`,               angle: 216, r: 155 },
+    { name: 'OpenCV',     logo: `${_di}/opencv/opencv-original.svg`,         angle: 252, r: 140 },
+    { name: 'Flask',      logo: `${_di}/flask/flask-original.svg`,           angle: 288, r: 160 },
+    { name: 'MySQL',      logo: `${_di}/mysql/mysql-original.svg`,           angle: 324, r: 142 },
+  ];
 
-const canvas = document.getElementById('skill-canvas');
-const nodesContainer = document.getElementById('skill-nodes');
+  const canvas      = document.getElementById('skill-canvas');
+  const nodesWrap   = document.getElementById('skill-nodes');
+  const netInner    = document.getElementById('skill-net-inner');
+  const constEl     = netInner.parentElement;
+  const ctx         = canvas.getContext('2d');
 
-function renderSkills() {
-  const cw = canvas.parentElement.clientWidth;
-  const ch = canvas.parentElement.clientHeight;
-  canvas.width = cw; canvas.height = ch;
-  const cx = cw / 2, cy = ch / 2;
+  let hoveredIdx = -1;
+  let tiltX = 0, tiltY = 0, targetTiltX = 0, targetTiltY = 0;
+  let nodeEls = [], positions = [];
+  let lastW = 0, lastH = 0;
 
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, cw, ch);
+  // ── Build DOM nodes ──
+  function buildNodes() {
+    const cw = constEl.clientWidth, ch = constEl.clientHeight;
+    const cx = cw / 2, cy = ch / 2;
+    const scale = Math.min(cw, ch) / 500;
+    positions = skills.map(s => {
+      const rad = (s.angle - 90) * Math.PI / 180;
+      return { x: cx + s.r * scale * Math.cos(rad), y: cy + s.r * scale * Math.sin(rad) };
+    });
+    nodesWrap.innerHTML = '';
+    nodeEls = positions.map((p, i) => {
+      const s = skills[i];
+      const el = document.createElement('div');
+      el.className = 'skill-node';
+      el.style.cssText = `left:${p.x}px;top:${p.y}px;transform:translate(-50%,-50%);`;
+      el.innerHTML = `<div class="skill-node-circle"><img src="${s.logo}" alt="${s.name}" loading="lazy"></div><div class="skill-node-label">${s.name}</div>`;
+      el.addEventListener('mouseenter', () => {
+        hoveredIdx = i;
+        nodeEls.forEach((e, j) => {
+          const diff = Math.min(Math.abs(j-i), skills.length - Math.abs(j-i));
+          e.classList.toggle('hovered',  diff === 0);
+          e.classList.toggle('neighbor', diff === 1 || diff === 2);
+        });
+      });
+      el.addEventListener('mouseleave', () => {
+        hoveredIdx = -1;
+        nodeEls.forEach(e => { e.classList.remove('hovered','neighbor'); });
+      });
+      nodesWrap.appendChild(el);
+      return el;
+    });
+    lastW = cw; lastH = ch;
+  }
 
-  const positions = skills.map(s => {
-    const rad = (s.angle - 90) * Math.PI / 180;
-    const scale = Math.min(cw, ch) / 480;
-    return { x: cx + s.r * scale * Math.cos(rad), y: cy + s.r * scale * Math.sin(rad) };
-  });
+  // ── Draw animated canvas ──
+  function drawNet(t) {
+    const cw = constEl.clientWidth, ch = constEl.clientHeight;
+    canvas.width = cw; canvas.height = ch;
+    ctx.clearRect(0, 0, cw, ch);
+    const cx = cw / 2, cy = ch / 2;
+    const scale = Math.min(cw, ch) / 500;
+    const n = positions.length;
 
-  // Draw lines
-  positions.forEach((p, i) => {
+    // ── Dotted orbital rings ──
+    const breathe = 0.72 + 0.28 * Math.sin(t * 0.00085);
+    const orbits = [
+      { r: 80,  speed:  0.000055, dotCount: 40,  dotSize: 2.0, baseA: 0.50, altA: 0.18, altColor: [138,106,62] },
+      { r: 152, speed: -0.000035, dotCount: 62,  dotSize: 1.6, baseA: 0.38, altA: 0.14, altColor: [107,143,163] },
+      { r: 210, speed:  0.000022, dotCount: 84,  dotSize: 1.3, baseA: 0.28, altA: 0.10, altColor: [138,106,62] },
+      { r: 260, speed: -0.000014, dotCount: 104, dotSize: 1.1, baseA: 0.20, altA: 0.07, altColor: [107,143,163] },
+    ];
+    orbits.forEach((orb, oi) => {
+      const offset = t * orb.speed;
+      const rPx    = orb.r * scale;
+      const [r,g,b] = orb.altColor;
+      // Alternate dots: every 3rd dot is slightly brighter and bigger
+      for (let d = 0; d < orb.dotCount; d++) {
+        const ang  = (d / orb.dotCount + offset) * Math.PI * 2;
+        const dx   = cx + rPx * Math.cos(ang);
+        const dy   = cy + rPx * Math.sin(ang);
+        const isBright = d % 4 === 0;
+        const alpha = breathe * (isBright ? orb.baseA : orb.altA * breathe);
+        const size  = isBright ? orb.dotSize * 1.55 : orb.dotSize;
+        ctx.beginPath();
+        ctx.arc(dx, dy, size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+        ctx.fill();
+        // Tiny glow on accent dots
+        if (isBright) {
+          ctx.beginPath();
+          ctx.arc(dx, dy, size * 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${r},${g},${b},${alpha * 0.22})`;
+          ctx.fill();
+        }
+      }
+    });
+
+    // ── Ambient centre glow ──
+    const glowR = 58 * scale * (1 + 0.06 * Math.sin(t * 0.0012));
+    const glow  = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR * 2.2);
+    glow.addColorStop(0,   `rgba(138,106,62,${0.12 * breathe})`);
+    glow.addColorStop(0.5, `rgba(138,106,62,${0.05 * breathe})`);
+    glow.addColorStop(1,   'rgba(138,106,62,0)');
     ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(p.x, p.y);
-    ctx.strokeStyle = 'rgba(138,106,62,0.55)';
-    ctx.lineWidth = 1.4;
-    ctx.stroke();
-    if (i < positions.length - 1) {
+    ctx.arc(cx, cy, glowR * 2.2, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+
+    // ── Cross-connections (static, no hover highlight) ──
+    for (let i = 0; i < n; i++) {
+      const j = (i + 3) % n;
+      const p = positions[i], q = positions[j];
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
-      ctx.lineTo(positions[(i+3)%positions.length].x, positions[(i+3)%positions.length].y);
-      ctx.strokeStyle = 'rgba(107,143,163,0.40)';
-      ctx.lineWidth = 1;
+      ctx.lineTo(q.x, q.y);
+      ctx.strokeStyle = 'rgba(107,143,163,0.20)';
+      ctx.lineWidth   = 0.75;
       ctx.stroke();
     }
+
+    // ── Spokes with energy dots (static brightness) ──
+    positions.forEach((p, i) => {
+      const pulse = 0.5 + 0.5 * Math.sin(t * 0.002 + i * 0.6);
+      const grad  = ctx.createLinearGradient(cx, cy, p.x, p.y);
+      grad.addColorStop(0, `rgba(138,106,62,${0.38 + 0.10 * pulse})`);
+      grad.addColorStop(1, 'rgba(138,106,62,0.04)');
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(p.x, p.y);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth   = 1.1;
+      ctx.stroke();
+
+      // Energy dot
+      const prog = ((t * (0.00055 + i * 0.000028) + i * 0.1) % 1);
+      const dotX = cx + (p.x - cx) * prog;
+      const dotY = cy + (p.y - cy) * prog;
+      ctx.beginPath();
+      ctx.arc(dotX, dotY, 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(138,106,62,0.45)';
+      ctx.fill();
+    });
+  }
+
+  // ── Per-frame node float + scale ──
+  function updateNodes(t) {
+    nodeEls.forEach((el, i) => {
+      const fy = Math.sin(t * 0.00085 + i * 0.70) * 6;
+      const fx = Math.cos(t * 0.00065 + i * 0.48) * 3;
+      let sc = 1;
+      if (hoveredIdx === i) {
+        sc = 1.48;
+      } else if (hoveredIdx !== -1) {
+        const diff = Math.min(Math.abs(i - hoveredIdx), skills.length - Math.abs(i - hoveredIdx));
+        if (diff === 1) sc = 1.14;
+        else if (diff === 2) sc = 1.06;
+      }
+      el.style.transform = `translate(calc(-50% + ${fx}px), calc(-50% + ${fy}px)) scale(${sc})`;
+      el.style.zIndex     = hoveredIdx === i ? '10' : '1';
+    });
+  }
+
+  // ── RAF loop ──
+  function loop(t) {
+    // Resize rebuild
+    const cw = constEl.clientWidth, ch = constEl.clientHeight;
+    if (Math.abs(cw - lastW) > 2 || Math.abs(ch - lastH) > 2) buildNodes();
+
+    // 3D tilt + global float
+    tiltX += (targetTiltX - tiltX) * 0.055;
+    tiltY += (targetTiltY - tiltY) * 0.055;
+    const gf = Math.sin(t * 0.0005) * 8;
+    netInner.style.transform = `translateY(${gf}px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+
+    drawNet(t);
+    updateNodes(t);
+    requestAnimationFrame(loop);
+  }
+
+  // Mouse tracking for tilt
+  constEl.addEventListener('mousemove', e => {
+    const r  = constEl.getBoundingClientRect();
+    const mx = (e.clientX - r.left)  / r.width  - 0.5;
+    const my = (e.clientY - r.top)   / r.height - 0.5;
+    targetTiltX = -my * 10;
+    targetTiltY =  mx * 10;
+  });
+  constEl.addEventListener('mouseleave', () => {
+    targetTiltX = 0; targetTiltY = 0;
+    hoveredIdx  = -1;
+    nodeEls.forEach(e => e.classList.remove('hovered','neighbor'));
   });
 
-  nodesContainer.innerHTML = '';
-  positions.forEach((p, i) => {
-    const s = skills[i];
-    const el = document.createElement('div');
-    el.className = 'skill-node';
-    el.style.left = p.x + 'px';
-    el.style.top = p.y + 'px';
-    el.innerHTML = `<div class="skill-node-circle">${s.emoji}</div><div class="skill-node-label">${s.name}</div>`;
-    nodesContainer.appendChild(el);
-  });
-}
-renderSkills();
-window.addEventListener('resize', renderSkills);
+  buildNodes();
+  requestAnimationFrame(loop);
+})();
 
 // Command Palette
 const cmdOverlay = document.getElementById('cmd-overlay');
